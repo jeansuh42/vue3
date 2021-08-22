@@ -12,6 +12,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "dayjs": "^1.10.6",
+    "lodash": "^4.17.21",
+    "scroll-to": "0.0.2",
     "swiper": "^6.8.3",
     "vue": "^3.2.4",
     "vuex": "^4.0.2"
@@ -23,7 +25,6 @@
     "@vue/compiler-sfc": "^3.2.4",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
-    "bable-loader": "0.0.1-security",
     "css-loader": "^6.2.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^7.16.0",

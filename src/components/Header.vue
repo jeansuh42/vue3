@@ -1,76 +1,78 @@
 <template>
-  <header>
-    <div class="inner">
-      <div
-        class="open-nav-drawer"
-        @click="onNav()"></div>
-      <a
-        href="javascript:void(0)"
-        class="logo"></a>
-      <div class="search">
-        <input
-          v-model="searchText"
-          type="text"
-          placeholder="찾고 싶은 상품을 검색해 보세요!"
-          @keyup.enter="search" />
+  <div>
+    <header :class="{ fixed: isFixed }">
+      <div class="inner">
         <div
-          class="search__icon"
-          @click="search"></div>
-      </div>
-      <!-- RANKING -->
-      <div class="ranking"> 
-        <div
-          ref="swiper"
-          class="swiper-container">
-          <div class="swiper-wrapper">
-            <div
-              v-for="(rank, index) in rankings.rankings" 
-              :key="rank.name" 
-              class="swiper-slide">
-              <a :href="rank.href">
-                <span class="index"> {{ index + 1 }} </span>
-                <span class="name"> {{ rank.name }} </span>
-              </a> 
-            </div>
-          </div>
+          class="open-nav-drawer"
+          @click="onNav('LNB')"></div>
+        <a
+          href="javascript:void(0)"
+          class="logo"></a>
+        <div class="search">
+          <input
+            v-model="searchText"
+            type="text"
+            placeholder="찾고 싶은 상품을 검색해 보세요!"
+            @keyup.enter="search" />
+          <div
+            class="search__icon"
+            @click="search"></div>
         </div>
-        <div
-          class="open-more"
-          @click.stop="toggleRankingWrap">
-        </div>
-        <div
-          v-if="isShowRankingWrap" 
-          class="ranking-wrap"
-          @click.stop="">
-          <div class="title">
-            <h3>실시간 쇼핑 검색어</h3>
-            <div class="time">
-              {{ referenceDate }} 기준
+        <div class="ranking">
+          <div
+            ref="swiper"
+            class="swiper-container">
+            <div class="swiper-wrapper">
+              <div
+                v-for="(rank, index) in rankings.rankings"
+                :key="rank.name"
+                class="swiper-slide">
+                <a :href="rank.href">
+                  <span class="index">{{ index + 1 }}</span>
+                  <span class="name">{{ rank.name }}</span>
+                </a>
+              </div>
             </div>
           </div>
-          <div class="tabs">
-            <div
-              :class="{ active: !tabIndex}"
-              class="tab"
-              @click="tabIndex = 0">
-              1~10위
+          <div
+            class="open-more"
+            @click="toggleRankingWrap"></div>
+          <div
+            v-if="isShowRankingWrap"
+            class="ranking-wrap"
+            @click.stop="">
+            <!-- @click.stop is for stopping the propagation of event -->
+            <div class="title">
+              <h3>실시간 쇼핑 검색어</h3>
+              <div class="time">
+                {{ referenceDate }} 기준
+              </div>
+              <div
+                class="close-wrap"
+                @click="toggleRankingWrap"></div>
             </div>
-            <div
-              :class="{ active: tabIndex}"
-              class="tab"
-              @click="tabIndex = 1">
-              11~20위
+            <div class="tabs">
+              <div
+                :class="{ active: !tabIndex }"
+                class="tab"
+                @click="tabIndex = 0">
+                1~10위
+              </div>
+              <div
+                :class="{ active: tabIndex }"
+                class="tab"
+                @click="tabIndex = 1">
+                11~20위
+              </div>
             </div>
-          </div>
-          <div class="list">
-            <ul>
+            <ul class="list">
               <li
                 v-for="(rank, index) in filteredRankings"
                 :key="rank.name">
-                <a :href="rank.href"> 
-                  <span class="index"> {{ tabIndex * 10 + index }} </span>
-                  <span class="name"> {{ rank.name }} </span>
-                  <span class="relative-name"> {{ rank.relativeName }} </span>
+                <a :href="rank.href">
+                  <span class="index">{{ (tabIndex * 10) + index + 1 }}</span>
+                  <span class="name">{{ rank.name }}</span>
+                  <span class="relative-name">{{ rank.relativeName }}</span>
                 </a>
                 <div
                   :class="rank.status"
@@ -79,31 +81,70 @@
             </ul>
           </div>
         </div>
+        <ul class="user-menu">
+          <li class="my">
+            <a href="javascript:void(0)"></a>
+            <ul class="my__menu">
+              <li
+                v-for="item in myMenu"
+                :key="item.name">
+                <a :href="item.href">
+                  {{ item.name }}
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="javascript:void(0)"></a>
+          </li>
+          <li>
+            <a href="javascript:void(0)"></a>
+          </li>
+          <li>
+            <a
+              href="javascript:void(0)"
+              @click="onNav('RNB')"></a>
+          </li>
+        </ul>
       </div>
-      <ul class="user-menu">
-        <li class="my">
-          <a href="javascript:void(0)"></a>
-          <ul class="my__menu">
-            <li
-              v-for="item in myMenu"
-              :key="item.name">
-              <a :href="item.href"> {{ item.name }} </a>
-            </li>
-          </ul>
-        </li>
-        <li><a href="javascript:void(0)"></a></li>
-        <li><a href="javascript:void(0)"></a></li>
-        <li><a href="javascript:void(0)"></a></li>
-        <li><a href="javascript:void(0)"></a></li>
-      </ul>
+    </header>
+    <div
+      :class="{ fixed: isFixed }"
+      class="utils">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="javascript:void(0)">베스트</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">쿠폰/혜택</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">기획전</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">오늘장보기</a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">T공식대리점</a>
+          </li>
+          <li>
+            <a
+              class="shocking-deal"
+              href="javascript:void(0)"></a>
+          </li>
+        </ul>
+      </div>
     </div>
-  </header>
+  </div>
 </template>
+
 
 <script>
 import dayjs from 'dayjs'
 import Swiper from 'swiper/bundle'
 import 'swiper/swiper-bundle.css'
+import _throttle from 'lodash/throttle'
 
 export default {
   data() {
@@ -112,11 +153,12 @@ export default {
       rankings: {},
       tabIndex: 0,
       isShowRankingWrap : false,
+      isFixed: false, 
       myMenu: [
         { name: '나의 쿠폰', href: 'javascript:void(0)'},
         { name: '주문/배송 조회', href: 'javascript:void(0)'},
-        { name: '나의 쿠폰', href: 'javascript:void(0)'},
-        { name: '나의 쿠폰', href: 'javascript:void(0)'},
+        { name: '취소/반품/교환', href: 'javascript:void(0)'},
+        { name: '고객센터', href: 'javascript:void(0)'},
         { name: '나의 쿠폰', href: 'javascript:void(0)'},
 
       ]
@@ -140,6 +182,11 @@ export default {
   },
   methods: {
    async init(){
+
+     window.addEventListener('scroll', _throttle(() =>{
+       this.isFixed = window.scrollY > 120
+     }, 100))
+
       const { data } = await this.$fetch({
         methods: 'GET',
         url: `https://trusting-williams-8cacfb.netlify.app/.netlify/functions/main?apiKey=1216&requestName=rankings`
@@ -159,8 +206,9 @@ export default {
       })
 
     },
-    onNav() {
-
+    onNav(name) {
+      this.$store.dispatch('navigation/onNav', name)
+      console.log( `isShow${name}`, this.$store.state.navigation[`isShow${name}`])
     }, 
     async search() {
       const res = await this.$fetch({
@@ -183,56 +231,7 @@ export default {
 
 
 <style scoped lang="scss">
-  // reset.css
-
-  /* http://meyerweb.com/eric/tools/css/reset/ 
-   v2.0 | 20110126
-   License: none (public domain)
-*/
-
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
+ 
   
 
 
