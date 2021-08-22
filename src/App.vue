@@ -1,13 +1,18 @@
 <template>
-  <h1>Hello, 출력되나요, {{ msg }} ? </h1>
+  <Header />
 </template>
 
 <script>
+import Header from '~/components/Header'
+
 export default {
-  data() {
-    return {
-      msg: 'Vue'
-    }
+  components: {
+    Header
   }
 }
 </script>
+
+
+<style lang="scss">
+  @import './scss/main';
+</style>
