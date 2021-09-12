@@ -20,7 +20,7 @@
         </div>
         <div class="ranking">
           <div
-            ref="swiper"
+            ref="swiperEl"
             class="swiper-container">
             <div class="swiper-wrapper">
               <div
@@ -145,85 +145,108 @@ import dayjs from 'dayjs'
 import Swiper from 'swiper/bundle'
 import 'swiper/swiper-bundle.css'
 import _throttle from 'lodash/throttle'
+import { ref, getCurrentInstance, computed, onMounted , nextTick} from 'vue' 
 
 export default {
-  data() {
-    return {
-      searchText: '',
-      rankings: {},
-      tabIndex: 0,
-      isShowRankingWrap : false,
-      isFixed: false, 
-      myMenu: [
+  setup(){
+    const instance = getCurrentInstance();
+    const globalProperties = instance.appContext.config
+      // = instance.appContext.config.globalProperties
+      
+    // Search
+    const searchText= ref('')
+    async function search() {
+      const res = await globalProperties.$fetch({
+        method: 'GET',
+        url: `https://trusting-williams-8cacfb.netlify.app/.netlify/functions/search?apiKey=1216&searchText=${searchText.value}`
+      })
+      console.log(res)
+    }
+
+
+    // Ranking 
+
+    const rankings = ref({})
+    const tabIndex = ref(0)
+    const isShowRankingWrap = ref(false)
+    const swiperEl= ref(null)
+    const referenceDate = computed(() => dayjs(rankings.value.referenceDate).format('YYYY.MM.DD HH:mm'))
+
+    const filteredRankings = computed(() => {
+      return rankings.value.rankings.filter((rank, index) => {
+        const start = tabIndex.value * 10
+        const end = start + 9 
+        return index >= start && index <= end
+      })
+    })
+
+    function toggleRankingWrap() {
+      isShowRankingWrap.value = !isShowRankingWrap.value
+      if ( isShowRankingWrap.value ) {
+        window.addEventListener('click', () => {
+          isShowRankingWrap.value = false
+        })
+      }
+    }
+
+    async function _initRankings() {
+      const { data } = await globalProperties.$fetch({
+        method: 'GET',
+        url: `https://trusting-williams-8cacfb.netlify.app/.netlify/functions/main`
+      })
+      
+      console.log('rankings: ', data);
+      rankings.value = data // 갱신 (update)
+
+
+      nextTick(() => {
+        new Swiper(swiperEl.value, {
+          direction: 'vertical',
+          speed: 1000,
+          autoplay: {
+            delay: 3000
+          },
+          loop: true
+        })
+      })
+    
+    }
+
+    function onNav(name) {
+      globalProperties.$store.dispatch('navigation/onNav', name)
+    }
+
+    // Etc .. 
+
+    const isFixed = ref(false);
+    const myMenu = ref([
         { name: '나의 쿠폰', href: 'javascript:void(0)'},
         { name: '주문/배송 조회', href: 'javascript:void(0)'},
         { name: '취소/반품/교환', href: 'javascript:void(0)'},
         { name: '고객센터', href: 'javascript:void(0)'},
-        { name: '나의 쿠폰', href: 'javascript:void(0)'},
+        { name: '나의 쿠폰', href: 'javascript:void(0)'}
 
-      ]
-    }
-  },
-  computed: {
-    referenceDate() {
-      return dayjs(this.rankings.referenceDate).format('YYYY.MM.DD HH:mm')
-    },
-    filteredRankings() {
-      return this.rankings.rankings.filter((rank, index) => {
-        const start = this.tabIndex * 10
-        const end = start + 9 
-        return index >= start && index <= end
-      })
-    }
-  },
-  mounted(){
-    this.init() 
-    // 라이프사이클은 비동기가 아니기 때문에 
-  },
-  methods: {
-   async init(){
+    ])
 
-     window.addEventListener('scroll', _throttle(() =>{
-       this.isFixed = window.scrollY > 120
+    onMounted(() => {
+       window.addEventListener('scroll', _throttle(() =>{
+       isFixed.value = window.scrollY > 120
      }, 100))
+      _initRankings()
+    })
 
-      const { data } = await this.$fetch({
-        methods: 'GET',
-        url: `https://trusting-williams-8cacfb.netlify.app/.netlify/functions/main?apiKey=1216&requestName=rankings`
-      })
-      console.log('rankings:', data)
-      this.rankings = data
-
-      setTimeout(() => {
-        new Swiper ( this.$refs.swiper, {
-          direction : 'vertical',
-          speed: 1000,
-          autoplay: {
-            delay:  3000
-          },
-          loop: true 
-        })
-      })
-
-    },
-    onNav(name) {
-      this.$store.dispatch('navigation/onNav', name)
-      console.log( `isShow${name}`, this.$store.state.navigation[`isShow${name}`])
-    }, 
-    async search() {
-      const res = await this.$fetch({
-        method: 'GET',
-        url: `https://trusting-williams-8cacfb.netlify.app/.netlify/functions/search?apiKey=1216&searchText=${this.searchText}`
-      })
-      console.log(res)
-    },
-    toggleRankingWrap() {
-      this.isShowRankingWrap = !this.isShowRankingWrap
-      if ( this.isShowRankingWrap ) {
-        window.addEventListener('click', () => {
-          this.isShowRankingWrap = false
-        })
-      }
+    return {
+      searchText,
+      search,
+      rankings,
+      tabIndex,
+      isShowRankingWrap,
+      swiperEl, 
+      referenceDate,
+      filteredRankings,
+      toggleRankingWrap,
+      onNav,
+      myMenu
     }
   }
 }
